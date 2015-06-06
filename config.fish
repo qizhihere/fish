@@ -20,20 +20,20 @@ set fish_greeting ""
 # Path to your oh-my-fish.
 set fish_path $HOME/.oh-my-fish
 
+# Load oh-my-fish configuration.
+. $fish_path/oh-my-fish.fish
+
 # Theme
-set fish_theme cbjohnson
-#set fish_theme beloglazov
+Theme "cbjohnson"
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-fish/plugins/*)
 # Custom plugins may be added to ~/.oh-my-fish/custom/plugins/
-# Example format: set fish_plugins autojump bundler
-set fish_plugins jump better-alias balias
+
+Plugin "jump"
+Plugin "balias"
 
 # Path to your custom folder (default path is $FISH/custom)
 #set fish_custom $HOME/dotfiles/oh-my-fish
-
-# Load oh-my-fish configuration.
-. $fish_path/oh-my-fish.fish
 
 # plugins
 # autojump
@@ -41,13 +41,13 @@ balias j "autojump"
 # fix bug
 set AUTOJUMP_ERROR_PATH /dev/null
 if test -e ~/.autojump/share/autojump/autojump.fish
-    . ~/.autojump/share/autojump/autojump.fish
+	. ~/.autojump/share/autojump/autojump.fish
 end
 if test -e /usr/share/autojump/autojump.fish
-    . /usr/share/autojump/autojump.fish
+	. /usr/share/autojump/autojump.fish
 end
 if test -e /etc/profile.d/autojump.fish
-    . /etc/profile.d/autojump.fish
+	. /etc/profile.d/autojump.fish
 end
 
 # balias
@@ -87,7 +87,7 @@ balias pls 'expac -H M -s "%-3! %-20n  > %-10v %-10m %l"'
 # Network
 balias gae "sudo python2.7 ~/Softs/goagent-v3.2.1/local/proxy.py"
 balias ss "sudo sslocal -c /etc/shadowsocks/config.json"
-balias xyw "sudo ~/Softs/Su_for_Linux_V1.31/rjsupplicant.sh"
+balias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
 balias p "proxychains4"
 balias dstat "dstat -cdlmnpsy"
 balias down 'axel -n50 -a -v'
@@ -97,14 +97,14 @@ balias iftop "sudo iftop"
 balias v 'vim'
 balias sv 'sudoedit'
 balias e 'emacsclient -t -a vim'
-balias se 'sudo emacsclient -t -a vim'
+balias pe 'proxychains emacsclient -t -a vim'
 
 # python
 balias vnew 'virtualenv'
 balias act '. bin/activate.fish'
 balias deact 'deactivate'
 
-# docker 
+# docker
 balias docker-pid "sudo docker inspect --format '{{.State.Pid}}'"
 balias docker-ip "sudo docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
 
@@ -135,38 +135,55 @@ balias renm 'sudo systemctl restart NetworkManager'
 balias fixdropbox 'echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
 balias mongo "mongo --quiet"
 
+function less-highlight
+	# use gnu source-highlight to replace less
+	if test -e "/usr/bin/src-hilite-lesspipe.sh"
+		set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
+		set -gx LESS ' -R '
+	end
+	# change man page colors(less), more info reference:
+	#   http://misc.flogisoft.com/bash/tip_colors_and_formatting#terminals_compatibility
+	set -gx LESS_TERMCAP_mb (printf '\e[01;31m')
+	set -gx LESS_TERMCAP_md (printf '\e[01;38;5;202m')
+	set -gx LESS_TERMCAP_me (printf '\e[0m')
+	set -gx LESS_TERMCAP_se (printf '\e[0m')
+	set -gx LESS_TERMCAP_so (printf '\e[01;48;5;234;38;5;231m')
+	set -gx LESS_TERMCAP_ue (printf '\e[0m')
+	set -gx LESS_TERMCAP_us (printf '\e[04;38;5;41m')
+end
+
 
 # functions
 function ngls
-    set ava_dir /etc/nginx/sites-available/
-    set ena_dir /etc/nginx/sites-enabled/;
-    ls $ava_dir $ena_dir $argv; echo ""; diff -u $ava_dir $ena_dir;
+	set ava_dir /etc/nginx/sites-available/
+	set ena_dir /etc/nginx/sites-enabled/;
+	ls $ava_dir $ena_dir $argv; echo ""; diff -u $ava_dir $ena_dir;
 end
 
 function ngln
-    for i in $argv
-        set conf_dir /etc/nginx
-        set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
-        echo $command
-        eval $command
-    end
+	for i in $argv
+		set conf_dir /etc/nginx
+		set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
+		echo $command
+		eval $command
+	end
 end
 
 function ngrm
-    for i in $argv
-        set conf_dir /etc/nginx
-        set command "sudo rm -f $conf_dir/sites-enabled/$i"
-        echo $command
-        eval $command
-    end
+	for i in $argv
+		set conf_dir /etc/nginx
+		set command "sudo rm -f $conf_dir/sites-enabled/$i"
+		echo $command
+		eval $command
+	end
 end
 
 function rel
-    source ~/.config/fish/config.fish
+	source ~/.config/fish/config.fish
 end
 
 function docker-enter
-    sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
+	sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
 end
 
 #xrdb -merge $HOME/.Xresources
@@ -175,3 +192,4 @@ end
 #alsi
 #tmux
 
+less-highlight
