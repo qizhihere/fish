@@ -1,5 +1,5 @@
 # env var
-set PATH $PATH $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin $HOME/.composer/vendor/bin
+set PATH $PATH $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin
 #set -gx WORKON_HOME $HOME/.virtualenvs
 #eval (python2.7 -m virtualfish)
 #if set -q VIRTUAL_ENV
@@ -41,13 +41,13 @@ balias j "autojump"
 # fix bug
 set AUTOJUMP_ERROR_PATH /dev/null
 if test -e ~/.autojump/share/autojump/autojump.fish
-	. ~/.autojump/share/autojump/autojump.fish
+    . ~/.autojump/share/autojump/autojump.fish
 end
 if test -e /usr/share/autojump/autojump.fish
-	. /usr/share/autojump/autojump.fish
+    . /usr/share/autojump/autojump.fish
 end
 if test -e /etc/profile.d/autojump.fish
-	. /etc/profile.d/autojump.fish
+    . /etc/profile.d/autojump.fish
 end
 
 # balias
@@ -88,7 +88,7 @@ balias pls 'expac -H M -s "%-3! %-20n  > %-10v %-10m %l"'
 balias gae "sudo python2.7 ~/Softs/goagent-v3.2.1/local/proxy.py"
 balias ss "sudo sslocal -c /etc/shadowsocks/config.json"
 balias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
-balias p "proxychains4"
+balias px "proxychains4"
 balias dstat "dstat -cdlmnpsy"
 balias down 'axel -n50 -a -v'
 balias iftop "sudo iftop"
@@ -96,8 +96,6 @@ balias iftop "sudo iftop"
 # edit
 balias v 'vim'
 balias sv 'sudoedit'
-balias e 'emacsclient -t -a vim'
-balias pe 'proxychains emacsclient -t -a vim'
 
 # python
 balias vnew 'virtualenv'
@@ -105,11 +103,21 @@ balias act '. bin/activate.fish'
 balias deact 'deactivate'
 
 # docker
+balias d "sudo docker"
 balias docker-pid "sudo docker inspect --format '{{.State.Pid}}'"
 balias docker-ip "sudo docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
+balias dim "sudo docker images"
+balias dps "sudo docker ps -a"
+balias drm "sudo docker rm"
+balias drmi "sudo docker rmi"
+balias drun "sudo docker run"
+
+function drush
+    sudo docker run -it $argv /bin/bash
+end
 
 # git and tig
-balias gin "git init"
+alias gin "git init"
 balias gdf "git diff"
 balias gs "git status"
 balias gl "git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
@@ -134,56 +142,76 @@ balias cls 'clear'
 balias renm 'sudo systemctl restart NetworkManager'
 balias fixdropbox 'echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
 balias mongo "mongo --quiet"
-
-function less-highlight
-	# use gnu source-highlight to replace less
-	if test -e "/usr/bin/src-hilite-lesspipe.sh"
-		set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
-		set -gx LESS ' -R '
-	end
-	# change man page colors(less), more info reference:
-	#   http://misc.flogisoft.com/bash/tip_colors_and_formatting#terminals_compatibility
-	set -gx LESS_TERMCAP_mb (printf '\e[01;31m')
-	set -gx LESS_TERMCAP_md (printf '\e[01;38;5;202m')
-	set -gx LESS_TERMCAP_me (printf '\e[0m')
-	set -gx LESS_TERMCAP_se (printf '\e[0m')
-	set -gx LESS_TERMCAP_so (printf '\e[01;48;5;234;38;5;231m')
-	set -gx LESS_TERMCAP_ue (printf '\e[0m')
-	set -gx LESS_TERMCAP_us (printf '\e[04;38;5;41m')
-end
+balias po "percol"
 
 
 # functions
+# less colors
+function less-highlight
+    # use gnu source-highlight to replace less
+    if test -e "/usr/bin/src-hilite-lesspipe.sh"
+        set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
+        set -gx LESS ' -R '
+    end
+    # change man page colors(less), more info reference:
+    #   http://misc.flogisoft.com/bash/tip_colors_and_formatting#terminals_compatibility
+    set -gx LESS_TERMCAP_mb (printf '\e[01;31m')
+    set -gx LESS_TERMCAP_md (printf '\e[01;38;5;202m')
+    set -gx LESS_TERMCAP_me (printf '\e[0m')
+    set -gx LESS_TERMCAP_se (printf '\e[0m')
+    set -gx LESS_TERMCAP_so (printf '\e[01;48;5;38;38;5;231m')
+    set -gx LESS_TERMCAP_ue (printf '\e[0m')
+    set -gx LESS_TERMCAP_us (printf '\e[04;38;5;41m')
+end
+
+# editors
+function e
+    if test -z "$argv"
+        eval $EMACS_PROXY emacsclient -t -a vim
+    else
+        set path_list ""
+        for i in $argv
+            set cmd $cmd '-e "(find-file \"'(realpath "$i")'\")"'
+        end
+        eval $EMACS_PROXY emacsclient -t -a vim $cmd
+    end
+end
+
+function pe
+    eval "set -gx EMACS_PROXY proxychains; e $argv; set -gx EMACS_PROXY"
+end
+
+# nginx
 function ngls
-	set ava_dir /etc/nginx/sites-available/
-	set ena_dir /etc/nginx/sites-enabled/;
-	ls $ava_dir $ena_dir $argv; echo ""; diff -u $ava_dir $ena_dir;
+    set ava_dir /etc/nginx/sites-available/
+    set ena_dir /etc/nginx/sites-enabled/;
+    ls $ava_dir $ena_dir $argv; echo ""; diff -u $ava_dir $ena_dir;
 end
 
 function ngln
-	for i in $argv
-		set conf_dir /etc/nginx
-		set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
-		echo $command
-		eval $command
-	end
+    for i in $argv
+        set conf_dir /etc/nginx
+        set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
+        echo $command
+        eval $command
+    end
 end
 
 function ngrm
-	for i in $argv
-		set conf_dir /etc/nginx
-		set command "sudo rm -f $conf_dir/sites-enabled/$i"
-		echo $command
-		eval $command
-	end
+    for i in $argv
+        set conf_dir /etc/nginx
+        set command "sudo rm -f $conf_dir/sites-enabled/$i"
+        echo $command
+        eval $command
+    end
 end
 
 function rel
-	source ~/.config/fish/config.fish
+    source ~/.config/fish/config.fish
 end
 
 function docker-enter
-	sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
+    sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
 end
 
 #xrdb -merge $HOME/.Xresources
