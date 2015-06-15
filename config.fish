@@ -182,6 +182,26 @@ function pe
     eval "set -gx EMACS_PROXY proxychains; e $argv; set -gx EMACS_PROXY"
 end
 
+# video
+# convert video to gif
+function v2gif
+    if math (count $argv)"<2" >/dev/null
+        echo "Usage: v2gif input output size"
+        echo "Arguments:"
+        echo "input  : input video"
+        echo "output : output gif path"
+        echo "size   : resize width"
+    end
+    if set -q argv[3]
+        set size $argv[3]
+    else
+        set size 600
+    end
+    echo "Convert video $argv[1] to $argv[2]($size wide)..."
+    ffmpeg -i $argv[1] -vf scale="$size":-1 -r 11 -f image2pipe -vcodec ppm - | convert -delay 5 -loop 0 - gif:- | convert -layers Optimize - $argv[2]
+    echo -e "\nFinished!"
+end
+
 # nginx
 function ngls
     set ava_dir /etc/nginx/sites-available/
