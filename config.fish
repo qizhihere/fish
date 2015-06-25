@@ -58,12 +58,9 @@ end
 
 function load-first -d "source the first existed file in file list."
     for i in $argv
-        if load "$i"
-            return 0
-        else
-            return 1
-        end
+        load "$i"; and return 0
     end
+    return 1
 end
 
 
@@ -82,11 +79,10 @@ set fish_greeting ""
 
 # Load oh-my-fish configuration.
 set fish_path $HOME/.oh-my-fish
-. $fish_path/oh-my-fish.fish
-
-# Theme
-Theme "cbjohnson"
-Plugin "jump"
+if load $fish_path/oh-my-fish.fish
+    Theme "cbjohnson"
+    Plugin "jump"
+end
 
 
 ########################
