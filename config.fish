@@ -338,7 +338,7 @@ function extract -d "automatically extract from archive according to extension."
             case '*.7z'
                 7z x $argv
             case '*'
-                echo "don't know how to extract '$1'..."
+                echo "don't know how to extract '$argv'..."
         end
     end
 end
