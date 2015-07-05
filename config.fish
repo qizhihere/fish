@@ -2,6 +2,10 @@
 # basic functions
 ########################
 
+function run-once -d "run command if it has not been run."
+    pgrep -u $USER -x $argv[1] >/dev/null; or eval $argv
+end
+
 function run-if -d "run function if condition."
     # check arguments
     if [ ! (count $argv) -eq 2 ]
@@ -39,28 +43,13 @@ end
 
 function export -d "bash export porting."
     for i in $argv
-        set -l __export_var (echo $i | grep -o '^[^=]*' >/dev/null)
+        set -l __export_var (echo $i | grep -o '^[^=]*')
         if [ "$__export_var" = "$i" ]
             set -gx $__export_var $$__export_var
         else
-            set -g -x $__export_var (echo -n $i | sed -e 's/^[^=]*=//')
+            set -gx $__export_var (echo -n $i | sed -e 's/^[^=]*=//')
         end
     end
-end
-
-function load -d "source file if it does exist."
-    if [ -f "$argv" ]
-        . $argv
-        return
-    end
-    return 1
-end
-
-function load-first -d "source the first existed file in file list."
-    for i in $argv
-        load "$i"; and return 0
-    end
-    return 1
 end
 
 
@@ -79,10 +68,10 @@ set fish_greeting ""
 
 # Load oh-my-fish configuration.
 set fish_path $HOME/.oh-my-fish
-if load $fish_path/oh-my-fish.fish
-    Theme "cbjohnson"
-    Plugin "jump"
-end
+. $fish_path/oh-my-fish.fish
+
+Theme "cbjohnson"
+Plugin "jump"
 
 
 ########################
@@ -90,7 +79,9 @@ end
 ########################
 
 # environment variables
-set PATH $PATH $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin
+set PATH $PATH $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
+         $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin \
+         /usr/bin/core_prel
 #term 256 color support
 set -gx TERM screen-256color
 set -gx EDITOR "vim"
@@ -106,11 +97,7 @@ set -gx EDITOR "vim"
 # autojump
 alias j "autojump"
 set AUTOJUMP_ERROR_PATH /dev/null  # fix bug
-load-first \
-  ~/.autojump/share/autojump/autojump.fish \
-  /usr/share/autojump/autojump.fish \
-  /etc/profile.d/autojump.fish
-
+[ -f /usr/share/autojump/autojump.fish ]; and . /usr/share/autojump/autojump.fish
 
 
 ########################
@@ -144,9 +131,11 @@ alias rootbak "sudo snapper -c rootfs create"
 alias ppi "sudo pacman -S"
 alias ppr "sudo pacman -Rsc"
 alias pps "sudo pacman -Ss"
-alias pai "sudo pacaur -S"
-alias par "sudo pacaur -Rsc"
-alias pas "sudo pacaur -Ss"
+alias pai "pacaur -S"
+alias par "pacaur -Rsc"
+alias pas "pacaur -Ss"
+alias pau "pacaur -Syu"
+alias pay "pacaur -Syy"
 alias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
 
 # network
@@ -171,6 +160,8 @@ alias dps "sudo docker ps -a"
 alias drm "sudo docker rm"
 alias drmi "sudo docker rmi"
 alias drun "sudo docker run"
+alias dexe "sudo docker exec"
+alias dcom "sudo docker-compose"
 
 # git
 alias gin "git init"
@@ -196,9 +187,13 @@ alias getpost 'cat ~/sync/Dropbox/drafts/template.md | xclip -se c'
 alias cb 'xclip -ib'
 alias cbpwd 'pwd | cb'
 alias C 'clear'
-alias fixdropbox 'echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
+alias fixdropbox 'echo fs.inotify.max_user_watches=1000000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
 alias mongo "mongo --quiet"
+alias cfe "coffee"
+alias cfc "coffee -c"
 alias : "percol"
+alias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
+alias xo "xdg-open"
 
 
 ########################
@@ -237,6 +232,9 @@ end
 
 # emacs
 function e -d "use emacsclient to edit file."
+    if not pgrep -fa "emacs.*?daemon" >/dev/null
+        emacs --daemon
+    end
     if test -z "$argv"
         eval $EMACS_PROXY emacsclient -t -a vim
     else
@@ -263,14 +261,14 @@ function cbi -d "copy content to system clipboard."
         case 1
             [ -f $argv[1] -a -r $argv[1] ]; and set __content (cat $argv[1])
         case '*'
-            echo $argv | read __content
+            set __content "$argv"
     end
 
     # copy to system clipboard
     if command-exist-p xsel
-        echo $__content | xsel -bi
+        echo -n $__content | xsel -bi
     else if command-exist-p xclip
-        echo $__content | xclip -selection clipboard -i
+        echo -n $__content | xclip -selection clipboard -i
     end
 end
 
@@ -367,6 +365,47 @@ function docker-enter
     sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
 end
 
+function den
+    sudo docker exec -it $argv[1] sh
+end
+
+# ssh-agent
+setenv SSH_ENV $HOME/.ssh/environment
+function start-agent -d "start ssh agent."
+    if [ -n "$SSH_AGENT_PID" ]
+        ps -ef | grep $SSH_AGENT_PID | grep ssh-agent > /dev/null
+        if [ $status -eq 0 ]
+            test-identities
+        end
+    else
+        if [ -f $SSH_ENV ]
+            . $SSH_ENV > /dev/null
+        end
+        ps -ef | grep $SSH_AGENT_PID | grep -v grep | grep ssh-agent > /dev/null
+        if [ $status -eq 0 ]
+            test-identities
+        else
+            echo "Initializing new SSH agent ..."
+            ssh-agent -c | sed 's/^echo/#echo/' > $SSH_ENV
+            echo "succeeded"
+            chmod 600 $SSH_ENV
+            . $SSH_ENV > /dev/null
+            ssh-add
+        end
+    end
+end
+
+function test-identities
+    ssh-add -l | grep "The agent has no identities" > /dev/null
+    if [ $status -eq 0 ]
+        ssh-add
+        if [ $status -eq 2 ]
+            start_agent
+        end
+    end
+end
+
 #xrdb -merge $HOME/.Xresources
 
 man-less-colors
+sed -i "/rm/d" ~/.config/fish/fish_history
