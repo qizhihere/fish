@@ -9,31 +9,31 @@ end
 function run-if -d "run function if condition."
     # check arguments
     if [ ! (count $argv) -eq 2 ]
-        echo "error arguments: $argv"
-        echo "Usage: runif func condition"
-        return 1
+	echo "error arguments: $argv"
+	echo "Usage: runif func condition"
+	return 1
     end
 
     if eval $argv[2]
-        eval $argv[1]
-        return
+	eval $argv[1]
+	return
     else
-        return 1
+	return 1
     end
 end
 
 function y-or-n-p -d "ask yes or no and return input test result."
     if [ (count $argv) -gt 0 ]
-        echo $argv
+	echo $argv
     end
 
     set -l __input_str
     read __input_str
 
     if echo $__input_str | grep -i "^y" >/dev/null
-        return 0
+	return 0
     else
-        return 1
+	return 1
     end
 end
 
@@ -43,12 +43,12 @@ end
 
 function export -d "bash export porting."
     for i in $argv
-        set -l __export_var (echo $i | grep -o '^[^=]*')
-        if [ "$__export_var" = "$i" ]
-            set -gx $__export_var $$__export_var
-        else
-            set -gx $__export_var (echo -n $i | sed -e 's/^[^=]*=//')
-        end
+	set -l __export_var (echo $i | grep -o '^[^=]*')
+	if [ "$__export_var" = "$i" ]
+	    set -gx $__export_var $$__export_var
+	else
+	    set -gx $__export_var (echo -n $i | sed -e 's/^[^=]*=//')
+	end
     end
 end
 
@@ -80,8 +80,8 @@ Plugin "jump"
 
 # environment variables
 set PATH $PATH $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
-         $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin \
-         /usr/bin/core_prel
+	 $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin \
+	 /usr/bin/core_prel
 #term 256 color support
 set -gx TERM screen-256color
 set -gx EDITOR "vim"
@@ -145,6 +145,8 @@ alias px "proxychains4"
 alias dstat "dstat -cdlmnpsy"
 alias down 'axel -n50 -a -v'
 alias iftop "sudo iftop"
+alias wifispot "sudo create_ap wlp8s0 wlp8s0"
+alias wirespot "sudo create_ap wlp8s0 enp9s0"
 
 # edit
 alias v 'vim'
@@ -162,6 +164,9 @@ alias drmi "sudo docker rmi"
 alias drun "sudo docker run"
 alias dexe "sudo docker exec"
 alias dcom "sudo docker-compose"
+alias dpu "sudo docker push"
+alias dpua "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker push \$i; end"
+alias dpla "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker pull \$i; end"
 
 # git
 alias gin "git init"
@@ -192,7 +197,10 @@ alias mongo "mongo --quiet"
 alias cfe "coffee"
 alias cfc "coffee -c"
 alias : "percol"
+alias po "percol"
 alias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
+alias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
+alias gmacs "env LC_CTYPE=zh_CN.UTF-8 emacs >/dev/null 2>&1 &; /bin/false"
 alias xo "xdg-open"
 
 
@@ -204,7 +212,7 @@ alias xo "xdg-open"
 function h -d "search history and selective copy to system clipboard."
     set -l __keyword ""
     if [ "$argv" ]
-        set __keyword $argv
+	set __keyword $argv
     end
 
     history | grep "$__keyword" | sed '1!G;h;$!d' | percol | sed 's/^ *[0-9][0-9]* *//p' | tr -d '\n' | cbi
@@ -215,8 +223,8 @@ end
 function man-less-colors -d "set syntax for less and man page."
     # use gnu source-highlight to replace less
     if test -e "/usr/bin/src-hilite-lesspipe.sh"
-        set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
-        set -gx LESS ' -R '
+	set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
+	set -gx LESS ' -R '
     end
     # change man page colors(less), more info reference:
     #   http://misc.flogisoft.com/bash/tip_colors_and_formatting#terminals_compatibility
@@ -233,16 +241,16 @@ end
 # emacs
 function e -d "use emacsclient to edit file."
     if not pgrep -fa "emacs.*?daemon" >/dev/null
-        emacs --daemon
+	emacs --daemon
     end
     if test -z "$argv"
-        eval $EMACS_PROXY emacsclient -t -a vim
+	eval $EMACS_PROXY emacsclient -t -a vim
     else
-        set path_list ""
-        for i in $argv
-            set cmd $cmd '-e "(find-file \"'(realpath "$i")'\")"'
-        end
-        eval $EMACS_PROXY emacsclient -t -a vim $cmd
+	set path_list ""
+	for i in $argv
+	    set cmd $cmd '-e "(find-file \"'(realpath "$i")'\")"'
+	end
+	eval $EMACS_PROXY emacsclient -t -a vim $cmd
     end
 end
 
@@ -256,27 +264,27 @@ function cbi -d "copy content to system clipboard."
     # get content according to number of arguments
     set -l __content ""
     switch (count $argv)
-        case 0
-            read __content
-        case 1
-            [ -f $argv[1] -a -r $argv[1] ]; and set __content (cat $argv[1])
-        case '*'
-            set __content "$argv"
+	case 0
+	    read __content
+	case 1
+	    [ -f $argv[1] -a -r $argv[1] ]; and set __content (cat $argv[1])
+	case '*'
+	    set __content "$argv"
     end
 
     # copy to system clipboard
     if command-exist-p xsel
-        echo -n $__content | xsel -bi
+	echo -n $__content | xsel -bi
     else if command-exist-p xclip
-        echo -n $__content | xclip -selection clipboard -i
+	echo -n $__content | xclip -selection clipboard -i
     end
 end
 
 function cbo -d "paste content from system clipboard."
     if command-exist-p xsel
-        xsel -bo
+	xsel -bo
     else if command-exist-p xclip
-        xclip -selection clipboard -o
+	xclip -selection clipboard -o
     end
 end
 
@@ -290,71 +298,71 @@ end
 
 function ngln
     for i in $argv
-        set conf_dir /etc/nginx
-        set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
-        echo $command
-        eval $command
+	set conf_dir /etc/nginx
+	set command "sudo ln -sf $conf_dir/sites-available/$i $conf_dir/sites-enabled/$i"
+	echo $command
+	eval $command
     end
 end
 
 function ngrm
     for i in $argv
-        set conf_dir /etc/nginx
-        set command "sudo rm -f $conf_dir/sites-enabled/$i"
-        echo $command
-        eval $command
+	set conf_dir /etc/nginx
+	set command "sudo rm -f $conf_dir/sites-enabled/$i"
+	echo $command
+	eval $command
     end
 end
 
 
 # fish
 function rel
-    source ~/.config/fish/config.fish
+    . ~/.config/fish/config.fish
 end
 
 
 # easy extract and compress
 function extract -d "automatically extract from archive according to extension."
     if [ -f "$argv" ]
-        switch $argv
-            case '*.tar.bz2' '*.tbz2'
-                tar xvjf $argv
-            case '*.tar.gz' '*.tgz'
-                tar xvzf $argv
-            case '*.bz2'
-                bunzip2 $argv
-            case '*.rar'
-                rar x $argv
-            case '*.gz'
-                gunzip $argv
-            case '*.tar'
-                tar xvf $argv
-            case '*.zip' '*.apk' '*.epub' '*.xpi' '*.war' '*.jar'
-                unzip $argv
-            case '*.Z'
-                uncompress $argv
-            case '*.7z'
-                7z x $argv
-            case '*'
-                echo "don't know how to extract '$argv'..."
-        end
+	switch $argv
+	    case '*.tar.bz2' '*.tbz2'
+		tar xvjf $argv
+	    case '*.tar.gz' '*.tgz'
+		tar xvzf $argv
+	    case '*.bz2'
+		bunzip2 $argv
+	    case '*.rar'
+		rar x $argv
+	    case '*.gz'
+		gunzip $argv
+	    case '*.tar'
+		tar xvf $argv
+	    case '*.zip' '*.apk' '*.epub' '*.xpi' '*.war' '*.jar'
+		unzip $argv
+	    case '*.Z'
+		uncompress $argv
+	    case '*.7z'
+		7z x $argv
+	    case '*'
+		echo "don't know how to extract '$argv'..."
+	end
     end
 end
 
 function compress
     if [ (count $argv) -ge 2 ]
-        switch $argv[1]
-            case '*.tar'
-                tar cf $argv[1] $argv[2..-1]
-            case '*.tar.bz2'
-                tar cjf $argv[1] $argv[2..-1]
-            case '*.tar.gz' '*.tgz'
-                tar czf $argv[1] $argv[2..-1]
-            case '*.zip'
-                zip $argv[1] $argv[2..-1]
-            case '*.rar'
-                rar $argv[1] $argv[2..-1]
-        end
+	switch $argv[1]
+	    case '*.tar'
+		tar cf $argv[1] $argv[2..-1]
+	    case '*.tar.bz2'
+		tar cjf $argv[1] $argv[2..-1]
+	    case '*.tar.gz' '*.tgz'
+		tar czf $argv[1] $argv[2..-1]
+	    case '*.zip'
+		zip $argv[1] $argv[2..-1]
+	    case '*.rar'
+		rar $argv[1] $argv[2..-1]
+	end
     end
 end
 
@@ -369,40 +377,16 @@ function den
     sudo docker exec -it $argv[1] sh
 end
 
-# ssh-agent
-setenv SSH_ENV $HOME/.ssh/environment
-function start-agent -d "start ssh agent."
-    if [ -n "$SSH_AGENT_PID" ]
-        ps -ef | grep $SSH_AGENT_PID | grep ssh-agent > /dev/null
-        if [ $status -eq 0 ]
-            test-identities
-        end
-    else
-        if [ -f $SSH_ENV ]
-            . $SSH_ENV > /dev/null
-        end
-        ps -ef | grep $SSH_AGENT_PID | grep -v grep | grep ssh-agent > /dev/null
-        if [ $status -eq 0 ]
-            test-identities
-        else
-            echo "Initializing new SSH agent ..."
-            ssh-agent -c | sed 's/^echo/#echo/' > $SSH_ENV
-            echo "succeeded"
-            chmod 600 $SSH_ENV
-            . $SSH_ENV > /dev/null
-            ssh-add
-        end
-    end
+function denf
+    sudo docker exec -it $argv[1] env TERM=xterm-256color fish
 end
 
-function test-identities
-    ssh-add -l | grep "The agent has no identities" > /dev/null
-    if [ $status -eq 0 ]
-        ssh-add
-        if [ $status -eq 2 ]
-            start_agent
-        end
-    end
+function drum
+    sudo docker run --rm -it -v (realpath ./):/host $argv sh
+end
+
+function drumf
+    sudo docker run --rm -it -v (realpath ./):/host $argv env TERM=xterm-256color fish
 end
 
 #xrdb -merge $HOME/.Xresources
