@@ -76,6 +76,8 @@ set fish_path $HOME/.oh-my-fish
 Theme "cbjohnson"
 Plugin "jump"
 
+# check install
+omf install >/dev/null 2>&1
 
 ########################
 # normal basic settings
