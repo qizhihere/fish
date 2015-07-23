@@ -75,6 +75,7 @@ set fish_path $HOME/.oh-my-fish
 
 Theme "cbjohnson"
 Plugin "jump"
+Plugin "balias"
 
 # check install
 omf install >/dev/null 2>&1
@@ -100,113 +101,113 @@ set -gx EDITOR "vim"
 [ -f ~/.dircolors ]; and eval (dircolors -c ~/.dircolors)
 
 # autojump
-alias j "autojump"
+balias j "autojump"
 set AUTOJUMP_ERROR_PATH /dev/null  # fix bug
 [ -f /usr/share/autojump/autojump.fish ]; and . /usr/share/autojump/autojump.fish
 
 
 ########################
-# my alias
+# my balias
 ########################
 
 # cd and ls
-alias - "cd -"
-alias ... "cd ../../"
-alias .... "cd ../../../"
-alias ..... "cd ../../../../"
-alias ...... "cd ../../../../../"
+balias - "cd -"
+balias ... "cd ../../"
+balias .... "cd ../../../"
+balias ..... "cd ../../../../"
+balias ...... "cd ../../../../../"
 
-alias l 'ls -lah'
-alias la 'ls -lAh'
-alias ll 'ls -lh'
-alias ls 'ls --color=tty'
+balias l 'ls -lah'
+balias la 'ls -lAh'
+balias ll 'ls -lh'
+balias ls 'ls --color=tty'
 
 # process
-alias psp "ps -A -o user,comm | sort -k2 | uniq -c | sort -k1 -n"
-alias psm "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 1 -n"
-alias psc "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 2 -n"
+balias psp "ps -A -o user,comm | sort -k2 | uniq -c | sort -k1 -n"
+balias psm "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 1 -n"
+balias psc "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 2 -n"
 
 # device
-alias lsdev "lsblk -o NAME,LABEL,FSTYPE,RM,SIZE,MOUNTPOINT,UUID"
+balias lsdev "lsblk -o NAME,LABEL,FSTYPE,RM,SIZE,MOUNTPOINT,UUID"
 
 # system managment
-alias homebak "sudo snapper -c homefs create"
-alias rootbak "sudo snapper -c rootfs create"
+balias homebak "sudo snapper -c homefs create"
+balias rootbak "sudo snapper -c rootfs create"
 
-alias ppi "sudo pacman -S"
-alias ppr "sudo pacman -Rsc"
-alias pps "sudo pacman -Ss"
-alias pai "pacaur -S"
-alias par "pacaur -Rsc"
-alias pas "pacaur -Ss"
-alias pau "pacaur -Syu"
-alias pay "pacaur -Syy"
-alias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
+balias ppi "sudo pacman -S"
+balias ppr "sudo pacman -Rsc"
+balias pps "sudo pacman -Ss"
+balias pai "pacaur -S"
+balias par "pacaur -Rsc"
+balias pas "pacaur -Ss"
+balias pau "pacaur -Syu"
+balias pay "pacaur -Syy"
+balias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
 
 # network
-alias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
-alias ss "sudo sslocal -c /etc/shadowsocks/config.json"
-alias px "proxychains4"
-alias dstat "dstat -cdlmnpsy"
-alias down 'axel -n50 -a -v'
-alias iftop "sudo iftop"
-alias wifispot "sudo create_ap wlp8s0 wlp8s0"
-alias wirespot "sudo create_ap wlp8s0 enp9s0"
+balias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
+balias ss "sudo sslocal -c /etc/shadowsocks/config.json"
+balias px "proxychains4"
+balias dstat "dstat -cdlmnpsy"
+balias down 'axel -n50 -a -v'
+balias iftop "sudo iftop"
+balias wifispot "sudo create_ap wlp8s0 wlp8s0"
+balias wirespot "sudo create_ap wlp8s0 enp9s0"
 
 # edit
-alias v 'vim'
-alias sv 'sudoedit'
+balias v 'vim'
+balias sv 'sudoedit'
 
 # docker
-alias d "sudo docker"
-alias docker-pid "sudo docker inspect --format '{{.State.Pid}}'"
-alias docker-ip "sudo docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
-alias dim "sudo docker images"
-alias dci "sudo docker commit"
-alias dps "sudo docker ps -a"
-alias drm "sudo docker rm"
-alias drmi "sudo docker rmi"
-alias drun "sudo docker run"
-alias dexe "sudo docker exec"
-alias dcom "sudo docker-compose"
-alias dpu "sudo docker push"
-alias dpua "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker push \$i; end"
-alias dpla "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker pull \$i; end"
+balias d "sudo docker"
+balias docker-pid "sudo docker inspect --format '{{.State.Pid}}'"
+balias docker-ip "sudo docker inspect --format '{{ .NetworkSettings.IPAddress }}'"
+balias dim "sudo docker images"
+balias dci "sudo docker commit"
+balias dps "sudo docker ps -a"
+balias drm "sudo docker rm"
+balias drmi "sudo docker rmi"
+balias drun "sudo docker run"
+balias dexe "sudo docker exec"
+balias dcom "sudo docker-compose"
+balias dpu "sudo docker push"
+balias dpua "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker push \$i; end"
+balias dpla "for i in littleqz/{nginx,redis,php,mariadb}; sudo docker pull \$i; end"
 
 # git
-alias gin "git init"
-alias gdf "git diff"
-alias gs "git status"
-alias gl "git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-alias grl "git reflog"
-alias gc "git checkout"
-alias gm "git merge --no-ff"
-alias gcb "git checkout -b"
-alias gci "git commit -a -m"
-alias gps "git push -u origin master"
-alias t "tig status"
+balias gin "git init"
+balias gdf "git diff"
+balias gs "git status"
+balias gl "git log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+balias grl "git reflog"
+balias gc "git checkout"
+balias gm "git merge --no-ff"
+balias gcb "git checkout -b"
+balias gci "git commit -a -m"
+balias gps "git push -u origin master"
+balias t "tig status"
 
 # nginx
-alias ngtest "sudo nginx -c /etc/nginx/nginx.conf -t"
-alias ngrel "sudo nginx -s reload";
+balias ngtest "sudo nginx -c /etc/nginx/nginx.conf -t"
+balias ngrel "sudo nginx -s reload";
 
 # Others
-alias resys "tmuxomatic ~/.tmuxomatic/sys"
-alias now 'date +"%Y-%m-%d %H:%M:%S"'
-alias getpost 'cat ~/sync/Dropbox/drafts/template.md | xclip -se c'
-alias cb 'xclip -ib'
-alias cbpwd 'pwd | cb'
-alias C 'clear'
-alias fixdropbox 'echo fs.inotify.max_user_watches=1000000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
-alias mongo "mongo --quiet"
-alias cfe "coffee"
-alias cfc "coffee -c"
-alias : "percol"
-alias po "percol"
-alias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
-alias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
-alias gmacs "env LC_CTYPE=zh_CN.UTF-8 emacs >/dev/null 2>&1 &; /bin/false"
-alias xo "xdg-open"
+balias resys "tmuxomatic ~/.tmuxomatic/sys"
+balias now 'date +"%Y-%m-%d %H:%M:%S"'
+balias getpost 'cat ~/sync/Dropbox/drafts/template.md | xclip -se c'
+balias cb 'xclip -ib'
+balias cbpwd 'pwd | cb'
+balias C 'clear'
+balias fixdropbox 'echo fs.inotify.max_user_watches=1000000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
+balias mongo "mongo --quiet"
+balias cfe "coffee"
+balias cfc "coffee -c"
+balias : "percol"
+balias po "percol"
+balias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
+balias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
+balias gmacs "env LC_CTYPE=zh_CN.UTF-8 emacs >/dev/null 2>&1 &; /bin/false"
+balias xo "xdg-open"
 
 
 ########################
