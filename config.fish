@@ -103,7 +103,9 @@ set -gx EDITOR "vim"
 # autojump
 balias j "autojump"
 set AUTOJUMP_ERROR_PATH /dev/null  # fix bug
-[ -f /usr/share/autojump/autojump.fish ]; and . /usr/share/autojump/autojump.fish
+for i in /usr/share/autojump/autojump.fish /etc/profile.d/autojump.fish
+	[ -f "$i" ]; and . "$i"
+end
 
 
 ########################
