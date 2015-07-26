@@ -128,13 +128,14 @@ balias ls 'ls --color=tty'
 balias psp "ps -A -o user,comm | sort -k2 | uniq -c | sort -k1 -n"
 balias psm "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 1 -n"
 balias psc "ps -eo rss,pmem,pcpu,vsize,comm | sort -k 2 -n"
+balias lsports "sudo netstat -tulnp"
 
 # device
 balias lsdev "lsblk -o NAME,LABEL,FSTYPE,RM,SIZE,MOUNTPOINT,UUID"
 
 # system managment
-balias homebak "sudo snapper -c homefs create"
-balias rootbak "sudo snapper -c rootfs create"
+balias homebak "sudo snapper -c homefs create -d"
+balias rootbak "sudo snapper -c rootfs create -d"
 
 balias ppi "sudo pacman -S"
 balias ppr "sudo pacman -Rsc"
