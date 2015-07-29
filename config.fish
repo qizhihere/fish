@@ -104,7 +104,7 @@ end
 ########################
 # update completion
 [ -z "$XDG_DATA_HOME" ]; and set -l XDG_DATA_HOME "$HOME/.local/share"
-if [ ! -e "$XDG_DATA_HOME/fish/generated_completions" ]
+if begin exist python sudo; and [ ! -e "$XDG_DATA_HOME/fish/generated_completions" ]; end
     echo "Updating completions..."
     fish_update_completions
 end
@@ -145,7 +145,7 @@ for i in /usr/share/autojump/autojump.fish \
 end
 
 # percol
-if not exist percol; and exist sudo pip2
+if begin not exist percol; and exist sudo pip2; end
     sudo pip2 install percol --upgrade
 end
 
