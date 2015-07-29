@@ -63,7 +63,7 @@ function ialias -d "set alias in an intelligent way."
     # `sudo` prefix in commands.
     [ (id -u) -eq 0 ]; and set argv[2] (echo $argv[2] | sed -E 's/sudo\s+//')
     if exist 'balias'
-        balias $argv
+        balias $argv 2>/dev/null
     else
         alias $argv
     end
@@ -136,7 +136,7 @@ set -gx EDITOR "vim"
 [ -f ~/.dircolors ]; and eval (dircolors -c ~/.dircolors)
 
 # autojump
-balias j "autojump"
+ialias j "autojump"
 set -g AUTOJUMP_ERROR_PATH /dev/null  # fix bug
 set -g AUTOJUMP_DATA_DIR /tmp
 for i in /usr/share/autojump/autojump.fish \
