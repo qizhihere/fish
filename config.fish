@@ -53,7 +53,7 @@ function export -d "bash export porting."
         if [ "$__export_var" = "$i" ]
             set -gx $__export_var $$__export_var
         else
-            set -gx $__export_var (echo -n $i | sed -e 's/^[^=]*=//')
+            set -gx $__export_var (echo -n $i | sed -E 's/^[^=]*=//')
         end
     end
 end
@@ -61,7 +61,7 @@ end
 function ialias -d "set alias in an intelligent way."
     # if the current user is root, then there is no need to keep a
     # `sudo` prefix in commands.
-    [ (id -u) -eq 0 ]; and set argv[2] (echo $argv[2] | sed 's/sudo\s\+//')
+    [ (id -u) -eq 0 ]; and set argv[2] (echo $argv[2] | sed -E 's/sudo\s+//')
     if exist 'balias'
         balias $argv
     else
