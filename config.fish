@@ -115,7 +115,6 @@ switch $TERM
 end
 
 
-
 ########################
 # fish basic settings
 ########################
