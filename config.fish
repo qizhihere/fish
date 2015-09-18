@@ -250,11 +250,11 @@ ialias dpla "for i in littleqz/{nginx,redis,php,mariadb,nodejs}; d pull \$i; end
 
 # kubernetes
 ialias k "kubectl"
-ialias kg "kb get"
+ialias kg "k get"
 ialias kgp "kg pods"
 ialias kgr "kg rc"
 ialias kgs "kg services"
-ialias kd "kb delete"
+ialias kd "k delete"
 
 # git
 ialias gin "git init"
