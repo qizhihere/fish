@@ -101,7 +101,7 @@ if not exist "realpath"
     ialias realpath "readlink -f"
 end
 
-# setting for emacs
+# setting for emacs tramp
 function fish_title
     true
 end
@@ -201,6 +201,7 @@ ialias lsdev "lsblk -o NAME,LABEL,FSTYPE,RM,SIZE,MOUNTPOINT,UUID"
 # system managment
 ialias homebak "sudo snapper -c homefs create -d"
 ialias rootbak "sudo snapper -c rootfs create -d"
+ialias timesync "sudo ntpdate -u cn.pool.ntp.org; sudo hwclock -w"
 
 ialias sudo "sudo -E"
 
@@ -235,6 +236,8 @@ ialias docker-pid "d inspect --format '{{.State.Pid}}'"
 ialias docker-ip "d inspect --format '{{ .NetworkSettings.IPAddress }}'"
 ialias dim "d images"
 ialias dci "d commit"
+ialias dcc "d ps | grep -i Exited | awk '{print $1}' | xargs sudo docker rm"
+ialias dimc "dim | grep -i '<none>' | awk '{print $1}' | xargs sudo docker rm"
 ialias dps "d ps -a"
 ialias drm "d rm"
 ialias drmi "d rmi"
@@ -286,8 +289,8 @@ ialias cfc "coffee -c"
 ialias : "percol"
 ialias po "percol"
 ialias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
+ialias e "emacsclient -c"
 ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
-ialias gmacs "env LC_CTYPE=zh_CN.UTF-8 emacs >/dev/null 2>&1 &; /bin/false"
 ialias xo "xdg-open"
 
 
@@ -322,28 +325,6 @@ function man-less-colors -d "set syntax for less and man page."
     set -gx LESS_TERMCAP_ue (printf '\e[0m')                     # end underline
     set -gx LESS_TERMCAP_us (printf '\e[04;38;5;41m')            # begin underline
 end
-
-
-# emacs
-function e -d "use emacsclient to edit file."
-    if not pgrep -fa "emacs.*?daemon" >/dev/null
-        emacs -nw --daemon
-    end
-    if test -z "$argv"
-        eval $EMACS_PROXY emacsclient -t -a vim
-    else
-        set path_list ""
-        for i in $argv
-            set cmd $cmd '-e "(find-file \"'(realpath "$i")'\")"'
-        end
-        eval $EMACS_PROXY emacsclient -t -a vim $cmd
-    end
-end
-
-function pe -d "use proxy version emacsclient to edit."
-    eval "set -gx EMACS_PROXY proxychains; e $argv; set -gx EMACS_PROXY"
-end
-
 
 # system clipboard
 function cbi -d "copy content to system clipboard."
