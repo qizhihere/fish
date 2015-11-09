@@ -66,11 +66,7 @@ function ialias -d "set alias in an intelligent way."
     # if the current user is root, then there is no need to keep a
     # `sudo` prefix in commands.
     [ (id -u) -eq 0 ]; and set argv[2] (echo $argv[2] | sed -r 's/sudo\s+//')
-    if exist 'balias'
-        balias $argv 2>/dev/null
-    else
-        alias $argv
-    end
+    eval "function $argv[1]; $argv[2..-1] \$argv; end"
 end
 
 function p2abs -d "convert paths to absolute paths."
@@ -185,7 +181,7 @@ ialias ...... "cd ../../../../../"
 ialias l 'ls -lah'
 ialias la 'ls -lAh'
 ialias ll 'ls -lh'
-ialias ls 'ls --color=tty'
+ialias ls 'command ls --color=tty'
 
 # process
 ialias pss "ps aux | percol | awk '{ print \$2 }'"
@@ -203,7 +199,7 @@ ialias homebak "sudo snapper -c homefs create -d"
 ialias rootbak "sudo snapper -c rootfs create -d"
 ialias timesync "sudo ntpdate -u cn.pool.ntp.org; sudo hwclock -w"
 
-ialias sudo "sudo -E"
+ialias sudo "command sudo -E"
 
 ialias ppi "sudo pacman -S"
 ialias ppr "sudo pacman -Rsc"
@@ -219,7 +215,7 @@ ialias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
 ialias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
 ialias ss "sudo sslocal -c /etc/shadowsocks/config.json"
 ialias px "proxychains4"
-ialias dstat "dstat -cdlmnpsy"
+ialias dstat "command dstat -cdlmnpsy"
 ialias down 'axel -n50 -a -v'
 ialias iftop "sudo iftop"
 ialias wifispot "sudo create_ap wlp8s0 wlp8s0"
@@ -250,14 +246,6 @@ ialias dclog "dco logs"
 ialias dpu "d push"
 ialias dpua "for i in littleqz/{nginx,redis,php,mariadb,nodejs}; d push \$i; end"
 ialias dpla "for i in littleqz/{nginx,redis,php,mariadb,nodejs}; d pull \$i; end"
-
-# kubernetes
-ialias k "kubectl"
-ialias kg "k get"
-ialias kgp "kg pods"
-ialias kgr "kg rc"
-ialias kgs "kg services"
-ialias kd "k delete"
 
 # git
 ialias gin "git init"
