@@ -103,7 +103,7 @@ function fish_title
 end
 
 # set prompt for tramp
-switch $TERM
+switch "$TERM"
     case "dumb"
         function fish_prompt
             echo "> "
