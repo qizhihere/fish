@@ -130,9 +130,9 @@ set fish_greeting ""
 ########################
 # environment variables
 set -l PATHS $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
-             $HOME/.composer/vendor/bin $HOME/.emacs.d/utils/bin \
+             $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
              /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
-             $HOME/.local/bin /usr/sbin /sbin
+             $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin
 for i in $PATHS
     not in-arr $i $PATH; and [ -d $i ]; and set PATH $PATH $i
 end
