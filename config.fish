@@ -266,7 +266,7 @@ ialias ngrel "sudo nginx -c /etc/nginx/nginx.conf -t; and sudo nginx -s reload";
 
 # Others
 ialias resys "tmuxomatic ~/.tmuxomatic/sys"
-ialias now 'date +"%Y-%m-%d %H:%M:%S"'
+ialias now 'date +"%Y-%m-%d %H:%M:%S %A"'
 ialias cb 'xclip -ib'
 ialias cbpwd 'pwd | cb'
 ialias C 'clear'
