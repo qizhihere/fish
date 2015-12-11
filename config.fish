@@ -195,11 +195,8 @@ ialias lps "sudo netstat -tulnp"
 ialias lsdev "lsblk -o NAME,LABEL,FSTYPE,RM,SIZE,MOUNTPOINT,UUID"
 
 # system managment
-ialias homebak "sudo snapper -c homefs create -d"
-ialias rootbak "sudo snapper -c rootfs create -d"
-ialias timesync "sudo ntpdate -u cn.pool.ntp.org; sudo hwclock -w"
-
 ialias sudo "command sudo -E"
+ialias timesync "sudo ntpdate -u cn.pool.ntp.org; sudo hwclock -w"
 
 ialias ppi "sudo pacman -S"
 ialias ppr "sudo pacman -Rsc"
