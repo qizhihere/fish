@@ -44,9 +44,9 @@ function y-or-n -d "ask yes or no and return input test result."
     end
 end
 
-function exist -d "check if a command is existed in system."
+function has -d "check if a command is existed in system."
     for i in $argv
-        type $argv[1] >/dev/null 2>&1; or return 1
+        type -a $argv[1] >/dev/null 2>&1; or return 1
     end
     return 0
 end
@@ -93,7 +93,7 @@ function gd -d "interactively quickly directory change."
     [ -d $dir ]; and cd $dir
 end
 
-if not exist "realpath"
+if not has "realpath"
     ialias realpath "readlink -f"
 end
 
@@ -116,7 +116,7 @@ end
 ########################
 # update completion
 [ -z "$XDG_DATA_HOME" ]; and set -l XDG_DATA_HOME "$HOME/.local/share"
-if begin exist python sudo; and [ ! -e "$XDG_DATA_HOME/fish/generated_completions" ]; end
+if begin has python sudo; and [ ! -e "$XDG_DATA_HOME/fish/generated_completions" ]; end
     echo "Updating completions..."
     fish_update_completions
 end
@@ -158,12 +158,12 @@ for i in /usr/share/autojump/autojump.fish \
 end
 
 # percol
-if begin not exist percol; and exist sudo pip2; end
+if begin not has percol; and has sudo pip2; end
     sudo pip2 install percol --upgrade
 end
 
 # change vagrant path
-if begin exist vagrant; and [ -d "/mnt/E/VMs" ]; end
+if begin has vagrant; and [ -d "/mnt/E/VMs" ]; end
     mkdir -p "/mnt/E/VMs/Vagrant/vagrant.d"; and \
     set -gx VAGRANT_HOME "/mnt/E/VMs/Vagrant/vagrant.d"
 end
@@ -215,6 +215,7 @@ ialias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
 ialias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
 ialias ss "sudo sslocal -c /etc/shadowsocks/config.json"
 ialias px "proxychains4"
+ialias spx "sudo proxychains4"
 ialias dstat "command dstat -cdlmnpsy"
 ialias down 'axel -n50 -a -v'
 ialias iftop "sudo iftop"
@@ -227,6 +228,7 @@ ialias sv 'sudoedit'
 
 # docker
 ialias d "sudo docker"
+ialias pd "sudo proxychains docker"
 ialias dco "sudo docker-compose"
 ialias docker-pid "d inspect --format '{{.State.Pid}}'"
 ialias docker-ip "d inspect --format '{{ .NetworkSettings.IPAddress }}'"
@@ -238,14 +240,6 @@ ialias dps "d ps -a"
 ialias drm "d rm"
 ialias drmi "d rmi"
 ialias drun "d run"
-ialias dexe "d exec"
-ialias dlog "d logs"
-ialias dcrun "dco run --rm"
-ialias dcli "dcrun cli"
-ialias dclog "dco logs"
-ialias dpu "d push"
-ialias dpua "for i in littleqz/{nginx,redis,php,mariadb,nodejs}; d push \$i; end"
-ialias dpla "for i in littleqz/{nginx,redis,php,mariadb,nodejs}; d pull \$i; end"
 
 # git
 ialias gin "git init"
@@ -281,6 +275,7 @@ ialias e "emacsclient"
 ialias ec "emacsclient -nc"
 ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 ialias xo "xdg-open"
+ialias rel ". ~/.config/fish/config.fish"
 
 
 ########################
@@ -297,8 +292,7 @@ function h -d "search history and selective copy to system clipboard."
 end
 
 
-# man page and less
-function man-less-colors -d "set syntax for less and man page."
+function colorize-man-less -d "set syntax for less and man page."
     # use gnu source-highlight to replace less
     if test -e "/usr/bin/src-hilite-lesspipe.sh"
         set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
@@ -315,7 +309,7 @@ function man-less-colors -d "set syntax for less and man page."
     set -gx LESS_TERMCAP_us (printf '\e[04;38;5;41m')            # begin underline
 end
 
-# system clipboard
+
 function cbi -d "copy content to system clipboard."
     # get content according to number of arguments
     set -l __content ""
@@ -329,18 +323,39 @@ function cbi -d "copy content to system clipboard."
     end
 
     # copy to system clipboard
-    if exist xsel
+    if has xsel
         echo -n $__content | xsel -bi
-    else if exist xclip
+    else if has xclip
         echo -n $__content | xclip -selection clipboard -i
     end
 end
 
 function cbo -d "paste content from system clipboard."
-    if exist xsel
+    if has xsel
         xsel -bo
-    else if exist xclip
+    else if has xclip
         xclip -selection clipboard -o
+    end
+end
+
+
+function setup-ssh-agent -d "setup ssh agent and its environment vars."
+    if has ssh-agent
+        # if no ssh agent running, start one
+        if not set -gq SSH_AGENT_PID
+            eval (ssh-agent -c|sed -E '/^echo[^;]*;/d')
+        end
+
+        # synchronize ssh agent environment to/from fish session
+        for x in SSH_AGENT_PID SSH_AUTH_SOCK
+            if not set -qU $x
+                # export ssh agent env to universal scope
+                set -qg $x; and set -Ux $x $$x
+            else
+                # load ssh agent env from universal scope
+                set -gx $x (set -U|awk '$1 ~ /'$x'/ {print $2}')
+            end
+        end
     end
 end
 
@@ -371,20 +386,14 @@ function ngrm
 end
 
 
-# fish
-function rel
-    . ~/.config/fish/config.fish
-end
-
-
-# easy extract and compress
+# easily extract and compress
 function extract -d "automatically extract from archive according to extension."
     if [ -f "$argv" ]
         switch $argv
             case '*.tar.bz2' '*.tbz2'
-                tar xvjf $argv
+                tar xvpjf $argv
             case '*.tar.gz' '*.tgz'
-                tar xvzf $argv
+                tar xvpzf $argv
             case '*.bz2'
                 bunzip2 $argv
             case '*.rar'
@@ -392,7 +401,7 @@ function extract -d "automatically extract from archive according to extension."
             case '*.gz'
                 gunzip $argv
             case '*.tar'
-                tar xvf $argv
+                tar xvpf $argv
             case '*.zip' '*.apk' '*.epub' '*.xpi' '*.war' '*.jar'
                 unzip $argv
             case '*.Z'
@@ -409,11 +418,11 @@ function compress
     if [ (count $argv) -ge 2 ]
         switch $argv[1]
             case '*.tar'
-                tar cf $argv[1] $argv[2..-1]
+                tar cvpf $argv[1] $argv[2..-1]
             case '*.tar.bz2'
-                tar cjf $argv[1] $argv[2..-1]
+                tar cvpjf $argv[1] $argv[2..-1]
             case '*.tar.gz' '*.tgz'
-                tar czf $argv[1] $argv[2..-1]
+                tar cvpzf $argv[1] $argv[2..-1]
             case '*.zip'
                 zip $argv[1] $argv[2..-1]
             case '*.rar'
@@ -421,7 +430,6 @@ function compress
         end
     end
 end
-
 
 
 # docker
@@ -445,8 +453,11 @@ function drumf
     sudo docker run --rm -it -v (realpath ./):/host $argv env TERM=xterm-256color fish
 end
 
-#xrdb -merge $HOME/.Xresources
+# colorize man page and `less` output
+colorize-man-less
 
-man-less-colors
+# setup ssh agent
+setup-ssh-agent
+
 # delete evil command histories which contain rm
 sed -i "/rm/d" ~/.config/fish/fish_history
