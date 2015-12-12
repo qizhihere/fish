@@ -1,0 +1,14 @@
+This repo stores my fish configs.
+
+* Install
+
+  : git clone https://github.com/qizhihere/fish.git ~/.config/omf
+  : fish ~/.config/omf/install.fish
+
+* Screenshots
+
+  #+name: figure-d880a682
+  [[./screenshots/1.png]]
+
+  #+name: figure-1bedd674
+  [[./screenshots/2.png]]

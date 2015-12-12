@@ -16,3 +16,4 @@ if begin not has omf; and [ "$OMF_STATUS" != "installing" ]; end
     # create shortcuts
     ln -sf ~/.config/omf/init.fish ~/.fishrc
 end
+xx
