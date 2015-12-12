@@ -17,4 +17,3 @@ if begin not has omf; and [ "$OMF_STATUS" != "installing" ]; end
     ln -sf ~/.config/omf/init.fish ~/.fishrc
     ln -sf ~/.config/omf/.dircolors ~/
 end
-xx
