@@ -7,13 +7,13 @@ function has -d "check if a command is existed in system."
     return 0
 end
 
+# install oh my fish
 if begin not has omf; and [ "$OMF_STATUS" != "installing" ]; end
-    # install oh my fish
     set -gx OMF_STATUS "installing"
     curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
     set -gx OMF_STATUS "installed"
-
-    # create shortcuts
-    ln -sf ~/.config/omf/init.fish ~/.fishrc
-    ln -sf ~/.config/omf/.dircolors ~/
 end
+
+# create shortcuts
+ln -sf ~/.config/omf/init.fish ~/.fishrc
+ln -sf ~/.config/omf/.dircolors ~/
