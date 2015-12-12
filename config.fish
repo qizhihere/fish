@@ -339,19 +339,17 @@ end
 function setup-ssh-agent -d "setup ssh agent and its environment vars."
     if has ssh-agent
         # if no ssh agent running, start one
-        if not set -gq SSH_AGENT_PID
+        if [ -z "$SSH_AGENT_PID" ]
             eval (ssh-agent -c|sed -E '/^echo[^;]*;/d')
+            # expose to global scope
+            for x in SSH_AGENT_PID SSH_AUTH_SOCK
+                set -Ux $x $$x
+            end
         end
 
-        # synchronize ssh agent environment to/from fish session
+        # import ssh agent environment from universal scope
         for x in SSH_AGENT_PID SSH_AUTH_SOCK
-            if not set -qU $x
-                # export ssh agent env to universal scope
-                set -qg $x; and set -Ux $x $$x
-            else
-                # load ssh agent env from universal scope
-                set -gx $x (set -U|awk '$1 ~ /'$x'/ {print $2}')
-            end
+            set -gx $x (set -U|awk '$1 ~ /'$x'/ {print $2}')
         end
     end
 end
