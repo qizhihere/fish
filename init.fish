@@ -79,9 +79,12 @@ set -gx EDITOR "vim"
 # disable startup greeting
 set fish_greeting ""
 
-# set prompt for Emacs tramp
-if [ "$INIT_TERM" = "dumb" ]
+# setup for Emacs
+if test "$INIT_TERM" = "dumb"
     function fish_prompt; echo "\$ "; end
+end
+if test -n "INSIDE_EMACS"
+    function fish_title; end
 end
 
 # environment variables
