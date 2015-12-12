@@ -1,25 +1,11 @@
 ########################
-# oh-my-fish settings
-########################
-if [ -d $HOME/.oh-my-fish ]
-    # Load oh-my-fish configuration.
-    set fish_path $HOME/.oh-my-fish
-    . $fish_path/oh-my-fish.fish
-
-    Theme "cbjohnson"
-    Plugin "jump"
-    Plugin "balias"
-
-    # check plugin installation
-    omf install >/dev/null 2>&1
-end
-
-########################
 # basic functions
 ########################
-function randpw -d "generate a random password with the specified length(default 12)."
-    set -l len $argv[1] 12
-    tr -dc _A-Za-z0-9 < /dev/urandom | head -c$len[1];echo
+function has -d "check if a command is existed in system."
+    for i in $argv
+        type -a $argv[1] >/dev/null 2>&1; or return 1
+    end
+    return 0
 end
 
 function in-arr -d "test if an element is in an array."
@@ -28,27 +14,6 @@ function in-arr -d "test if an element is in an array."
     else
         return 1
     end
-end
-
-function try-run -d "run command if it has not been run."
-    pgrep -u $USER -x $argv[1] >/dev/null; or eval $argv
-end
-
-function y-or-n -d "ask yes or no and return input test result."
-    read -l -n1 -p"echo -n '$argv [y/n/Y/N] '" __input_str
-
-    if echo $__input_str | grep -i "^y" >/dev/null
-        return 0
-    else
-        return 1
-    end
-end
-
-function has -d "check if a command is existed in system."
-    for i in $argv
-        type -a $argv[1] >/dev/null 2>&1; or return 1
-    end
-    return 0
 end
 
 function export -d "bash export porting."
@@ -76,6 +41,11 @@ function p2abs -d "convert paths to absolute paths."
     end
 end
 
+function randpw -d "generate a random password with the specified length(default 12)."
+    set -l len $argv[1] 12
+    tr -dc _A-Za-z0-9 < /dev/urandom | head -c$len[1];echo
+end
+
 function ff -d "interactively quickly file pick."
     find . -type f -iwholename "*$argv*" 2>/dev/null | percol | p2abs | read -lz files
     echo -n $files | cbi
@@ -97,49 +67,44 @@ if not has "realpath"
     ialias realpath "readlink -f"
 end
 
-# setting for emacs tramp
-function fish_title
-    true
-end
-
-# set prompt for tramp
-switch "$TERM"
-    case "dumb"
-        function fish_prompt
-            echo "> "
-        end
-end
-
 
 ########################
 # fish basic settings
 ########################
-# update completion
-[ -z "$XDG_DATA_HOME" ]; and set -l XDG_DATA_HOME "$HOME/.local/share"
-if begin has python sudo; and [ ! -e "$XDG_DATA_HOME/fish/generated_completions" ]; end
-    echo "Updating completions..."
-    fish_update_completions
-end
+#term 256 color support
+set -gx INIT_TERM "$TERM"
+set -gx TERM "screen-256color"
+set -gx EDITOR "vim"
 
 # disable startup greeting
 set fish_greeting ""
 
+# set prompt for Emacs tramp
+if [ "$INIT_TERM" = "dumb" ]
+    function fish_prompt; echo "\$ "; end
+end
 
-########################
-# normal basic settings
-########################
 # environment variables
 set -l PATHS $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
              $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
              /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
              $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin
 for i in $PATHS
-    not in-arr $i $PATH; and [ -d $i ]; and set PATH $PATH $i
+    not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
 end
 
-#term 256 color support
-set -gx TERM screen-256color
-set -gx EDITOR "vim"
+# update completion
+if has python sudo
+    set -l _exist
+    for x in $fish_complete_path
+        [ -e "$x" ]; and set _exist yes
+    end
+
+    if [ -z "$_exist" ]
+        echo "Updating completions..."
+        fish_update_completions
+    end
+end
 
 
 ########################
@@ -148,25 +113,11 @@ set -gx EDITOR "vim"
 # ls colors
 [ -f ~/.dircolors ]; and eval (dircolors -c ~/.dircolors)
 
-# autojump
-ialias j "autojump"
-set -g AUTOJUMP_ERROR_PATH /dev/null  # fix bug
-set -g AUTOJUMP_DATA_DIR /tmp
-for i in /usr/share/autojump/autojump.fish \
-         /etc/profile.d/autojump.fish
-    [ -f "$i" ]; and . "$i"; and break
-end
-
 # percol
 if begin not has percol; and has sudo pip2; end
-    sudo pip2 install percol --upgrade
+    sudo pip2 install percol -U
 end
 
-# change vagrant path
-if begin has vagrant; and [ -d "/mnt/E/VMs" ]; end
-    mkdir -p "/mnt/E/VMs/Vagrant/vagrant.d"; and \
-    set -gx VAGRANT_HOME "/mnt/E/VMs/Vagrant/vagrant.d"
-end
 
 ########################
 # my balias
@@ -177,6 +128,8 @@ ialias ... "cd ../../"
 ialias .... "cd ../../../"
 ialias ..... "cd ../../../../"
 ialias ...... "cd ../../../../../"
+
+ialias j "autojump"
 
 ialias l 'ls -lah'
 ialias la 'ls -lAh'
