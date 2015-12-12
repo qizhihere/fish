@@ -82,6 +82,7 @@ set fish_greeting ""
 # setup for Emacs
 if test "$INIT_TERM" = "dumb"
     function fish_prompt; echo "\$ "; end
+    function fish_title; end
 end
 if test -n "INSIDE_EMACS"
     function fish_title; end
