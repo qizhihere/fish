@@ -303,7 +303,7 @@ end
 function setup-ssh-agent -d "setup ssh agent and its environment vars."
     if has ssh-agent
         # if no ssh agent running, start one
-        if [ -z "$SSH_AGENT_PID" ]
+        if not [ (ps -hp $SSH_AGENT_PID 2>/dev/null) ]
             eval (ssh-agent -c|sed -E '/^echo[^;]*;/d')
             # expose to global scope
             for x in SSH_AGENT_PID SSH_AUTH_SOCK
