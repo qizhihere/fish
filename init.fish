@@ -122,6 +122,15 @@ if begin not has percol; and has sudo pip2; end
     sudo pip2 install percol -U
 end
 
+# autojump
+ialias j "autojump"
+set -g AUTOJUMP_ERROR_PATH /dev/null  # fix bug
+set -g AUTOJUMP_DATA_DIR /tmp
+for i in /usr/share/autojump/autojump.fish \
+         /etc/profile.d/autojump.fish
+    [ -f "$i" ]; and . "$i"; and break
+end
+
 
 ########################
 # my balias
@@ -132,8 +141,6 @@ ialias ... "cd ../../"
 ialias .... "cd ../../../"
 ialias ..... "cd ../../../../"
 ialias ...... "cd ../../../../../"
-
-ialias j "autojump"
 
 ialias l 'ls -lah'
 ialias la 'ls -lAh'
