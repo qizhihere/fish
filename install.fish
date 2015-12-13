@@ -8,10 +8,8 @@ function has -d "check if a command is existed in system."
 end
 
 # install oh my fish
-if begin not has omf; and [ "$OMF_STATUS" != "installing" ]; end
-    set -gx OMF_STATUS "installing"
-    curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
-    set -gx OMF_STATUS "installed"
+if begin not has omf; and [ "$OMF_BOOTSTRAP" ]; end
+    curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | env OMF_BOOTSTRAP=yes fish
 end
 
 # create shortcuts
