@@ -97,6 +97,12 @@ for i in $PATHS
     not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
 end
 
+# java environment
+for i in java-{8,7}-openjdk
+    set -l _dir "/usr/lib/jvm/$i"
+    test -d "$_dir"; and set -gx JAVA_HOME "$_dir"
+end
+
 # update completion
 if has python sudo
     set -l _exist
