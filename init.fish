@@ -205,7 +205,7 @@ ialias drm "d rm"
 ialias drmi "d rmi"
 ialias drun "d run"
 ialias dci "d commit"
-ialias dcc "dps | grep -i exited | awk '{print \$1}' | xargs sudo docker rm -v"
+ialias dcc "dps | grep -iE 'exited|dead '| awk '{print \$1}' | xargs sudo docker rm -v"
 ialias dcci "dim | grep -i '<none>' | awk '{print \$3}' | xargs sudo docker rmi"
 
 # git
