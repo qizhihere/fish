@@ -88,19 +88,20 @@ if test -n "INSIDE_EMACS"
     function fish_title; end
 end
 
-# environment variables
-set -l PATHS $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
-             $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
-             /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
-             $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin
-for i in $PATHS
-    not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
-end
-
 # java environment
 for i in java-{8,7}-openjdk
     set -l _dir "/usr/lib/jvm/$i"
     test -d "$_dir"; and set -gx JAVA_HOME "$_dir"
+end
+
+# environment variables
+set -l PATHS $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
+             $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
+             /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
+             $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin \
+             $JAVA_HOME/bin
+for i in $PATHS
+    not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
 end
 
 # update completion
@@ -237,8 +238,7 @@ ialias cfe "coffee"
 ialias cfc "coffee -c"
 ialias : "percol"
 ialias po "percol"
-ialias R "env EDITOR='"(realpath ~)"/scripts/emacsclient.sh' ranger"
-ialias e "emacsclient"
+ialias e "emacsclient -s cli"
 ialias ec "emacsclient -nc"
 ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 ialias xo "xdg-open"
