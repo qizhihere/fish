@@ -191,8 +191,12 @@ ialias wifispot "sudo create_ap wlp8s0 wlp8s0"
 ialias wirespot "sudo create_ap wlp8s0 enp9s0"
 
 # edit
-ialias v 'vim'
-ialias sv 'sudoedit'
+ialias v "vim"
+ialias sv "env SUDO_EDITOR=vim sudoedit"
+ialias e "emacsclient -s cli"
+ialias se "env SUDO_EDITOR=\"emacsclient -s cli\" sudoedit"
+ialias ec "emacsclient -nc"
+ialias emacs "env LC_CTYPE=zh_CN.UTF-8 command emacs"
 
 # docker
 ialias d "sudo docker"
@@ -238,9 +242,6 @@ ialias cfe "coffee"
 ialias cfc "coffee -c"
 ialias : "percol"
 ialias po "percol"
-ialias e "emacsclient -s cli"
-ialias ec "emacsclient -nc"
-ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 ialias xo "xdg-open"
 ialias rel ". ~/.config/fish/config.fish"
 
