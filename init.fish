@@ -196,7 +196,7 @@ ialias sv "env SUDO_EDITOR=vim sudoedit"
 ialias e "emacsclient -s cli"
 ialias se "env SUDO_EDITOR=\"emacsclient -s cli\" sudoedit"
 ialias ec "emacsclient -nc"
-ialias emacs "env LC_CTYPE=zh_CN.UTF-8 command emacs"
+ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 
 # docker
 ialias d "sudo docker"
