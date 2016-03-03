@@ -95,7 +95,7 @@ for i in java-{8,7}-openjdk
 end
 
 # environment variables
-set -l PATHS $HOME/.gem/ruby/2.2.0/bin $HOME/scripts/bin \
+set -l PATHS $HOME/.gem/ruby/*/bin $HOME/scripts/bin \
              $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
              /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
              $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin \
@@ -142,12 +142,14 @@ end
 ########################
 # my balias
 ########################
-# cd/ls
+# basic commands
 ialias - "cd -"
 ialias ... "cd ../../"
 ialias .... "cd ../../../"
 ialias ..... "cd ../../../../"
 ialias ...... "cd ../../../../../"
+
+ialias CP "rsync -aP"
 
 ialias l 'ls -lah'
 ialias la 'ls -lAh'
@@ -181,7 +183,6 @@ ialias pls 'expac -H M -s "%-3! %-25n  -> %-10v %-10m %l <%+5r>  ::%d"'
 
 # network
 ialias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
-ialias ss "sudo sslocal -c /etc/shadowsocks/config.json"
 ialias px "proxychains4"
 ialias spx "sudo proxychains4"
 ialias dstat "command dstat -cdlmnpsy"
@@ -193,8 +194,8 @@ ialias wirespot "sudo create_ap wlp8s0 enp9s0"
 # edit
 ialias v "vim"
 ialias sv "env SUDO_EDITOR=vim sudoedit"
-ialias e "emacsclient -s cli"
-ialias se "env SUDO_EDITOR=\"emacsclient -s cli\" sudoedit"
+ialias e "emacsclient -s cli -nw -c"
+ialias se "env SUDO_EDITOR=\"emacsclient -s cli -nw -c\" sudoedit"
 ialias ec "emacsclient -nc"
 ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 
@@ -250,7 +251,7 @@ ialias rel ". ~/.config/fish/config.fish"
 # extended functions
 ########################
 # history
-function h -d "search history and selective copy to system clipboard."
+function h -d "search history and selectively copy to system clipboard."
     set -l __keyword ""
     if [ "$argv" ]
         set __keyword $argv
@@ -260,7 +261,7 @@ function h -d "search history and selective copy to system clipboard."
 end
 
 
-function colorize-man-less -d "set syntax for less and man page."
+function colorize-man-less -d "setup syntax highlight for less and man page."
     # use gnu source-highlight to replace less
     if test -e "/usr/bin/src-hilite-lesspipe.sh"
         set -gx LESSOPEN "| /usr/bin/src-hilite-lesspipe.sh %s"
@@ -390,9 +391,9 @@ function compress
             case '*.tar.gz' '*.tgz'
                 tar cvpzf $argv[1] $argv[2..-1]
             case '*.zip'
-                zip $argv[1] $argv[2..-1]
+                zip -r $argv[1] $argv[2..-1]
             case '*.rar'
-                rar $argv[1] $argv[2..-1]
+                rar a -r $argv[1] $argv[2..-1]
         end
     end
 end
@@ -419,10 +420,7 @@ function drumf
     sudo docker run --rm -it -v (realpath ./):/host $argv env TERM=xterm-256color fish
 end
 
-# colorize man page and `less` output
 colorize-man-less
-
-# setup ssh agent
 setup-ssh-agent
 
 # delete evil command histories which contain rm
