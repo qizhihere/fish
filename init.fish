@@ -225,7 +225,6 @@ ialias gim "git merge --no-ff"
 ialias gcb "git checkout -b"
 ialias gci "git commit -m"
 ialias gps "git push -u origin master"
-ialias t "tig status"
 
 # nginx
 ialias ngtest "sudo nginx -c /etc/nginx/nginx.conf -t"
@@ -250,6 +249,11 @@ ialias rel ". ~/.config/fish/config.fish"
 ########################
 # extended functions
 ########################
+function t -d "youdao dictionary"
+    wget -qO- "http://fanyi.youdao.com/openapi.do?keyfrom=sudotry&key=1865874386&type=data&doctype=json&version=1.1&q=$argv[1]" |\
+    grep --color=auto -oP '(?<="explains":\[")[^"]*'
+end
+
 # history
 function h -d "search history and selectively copy to system clipboard."
     set -l __keyword ""
