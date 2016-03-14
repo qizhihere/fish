@@ -237,7 +237,6 @@ ialias cb 'xclip -ib'
 ialias cbpwd 'pwd | cb'
 ialias C 'clear'
 ialias fixdropbox 'echo fs.inotify.max_user_watches=1000000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p'
-ialias mongo "mongo --quiet"
 ialias cfe "coffee"
 ialias cfc "coffee -c"
 ialias : "percol"
