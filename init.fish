@@ -138,6 +138,9 @@ for i in /usr/share/autojump/autojump.fish \
     [ -f "$i" ]; and . "$i"; and break
 end
 
+# simple http server
+ialias server "python -mSimpleHTTPServer"
+
 
 ########################
 # my balias
