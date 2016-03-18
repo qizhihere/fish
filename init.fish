@@ -139,7 +139,7 @@ for i in /usr/share/autojump/autojump.fish \
 end
 
 # simple http server
-ialias server "python -mSimpleHTTPServer"
+ialias server "python2 -mSimpleHTTPServer"
 
 
 ########################
