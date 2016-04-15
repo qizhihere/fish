@@ -95,13 +95,21 @@ for i in java-{8,7}-openjdk
 end
 
 # environment variables
-set -l PATHS $HOME/.gem/ruby/*/bin $HOME/scripts/bin \
+set -l PATHS $HOME/.rbenv/bin $HOME/.gem/ruby/2.3.0/bin $HOME/scripts/bin \
              $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
              /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
              $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin \
              $JAVA_HOME/bin
 for i in $PATHS
     not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
+end
+
+# maybe use rbenv
+if has rbenv
+    status --is-interactive; and . (rbenv init -|psub)
+else
+    # bundler install path
+    set -gx BUNDLE_PATH $HOME/.gem/ruby/2.3.0
 end
 
 # update completion
