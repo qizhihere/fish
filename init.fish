@@ -27,6 +27,12 @@ function export -d "bash export porting."
     end
 end
 
+function add_paths -d "add paths to \$PATH."
+    for i in $argv
+        not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
+    end
+end
+
 function ialias -d "set alias in an intelligent way."
     # if the current user is root, then there is no need to keep a
     # `sudo` prefix in commands.
@@ -95,14 +101,15 @@ for i in java-{8,7}-openjdk
 end
 
 # environment variables
-set -l PATHS $HOME/.rbenv/bin $HOME/.gem/ruby/2.3.0/bin $HOME/scripts/bin \
-             $HOME/.composer/vendor/bin $HOME/.emacs.d/bin \
-             /usr/bin/core_perl $HOME/.local/bin /usr/local/bin \
-             $HOME/.local/bin /usr/sbin /sbin /usr/local/sbin \
-             $JAVA_HOME/bin
-for i in $PATHS
-    not in-arr $i $PATH; and [ -d $i ]; and set -gx PATH $PATH $i
-end
+add_paths $HOME/.rbenv/bin \
+          $HOME/scripts/bin $HOME/.composer/vendor/bin \
+          $HOME/.emacs.d/bin /usr/bin/core_perl \
+          $HOME/.local/bin /usr/local/bin \
+          /usr/sbin /sbin /usr/local/sbin \
+          $JAVA_HOME/bin
+
+# setup docker daemon env
+set -gx DOCKER_HOST "unix:///var/run/docker.sock"
 
 # maybe use rbenv
 if has rbenv
@@ -110,6 +117,7 @@ if has rbenv
 else
     # bundler install path
     set -gx BUNDLE_PATH $HOME/.gem/ruby/2.3.0
+    add_paths $HOME/.gem/ruby/2.3.0/bin
 end
 
 # update completion
@@ -221,6 +229,7 @@ ialias dim "d images"
 ialias drm "d rm"
 ialias drmi "d rmi"
 ialias drun "d run"
+ialias docker-tree "drun --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz images -t"
 ialias dci "d commit"
 ialias dcc "dps | grep -iE 'exited|dead '| awk '{print \$1}' | xargs sudo docker rm -v"
 ialias dcci "dim | grep -i '<none>' | awk '{print \$3}' | xargs sudo docker rmi"
@@ -436,6 +445,3 @@ end
 
 colorize-man-less
 setup-ssh-agent
-
-# delete evil command histories which contain rm
-sed -i "/rm/d" ~/.config/fish/fish_history
