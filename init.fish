@@ -109,11 +109,11 @@ set -gx DOCKER_HOST "unix:///var/run/docker.sock"
 
 # maybe use rbenv
 if has rbenv
-    status --is-interactive; and . (rbenv init -|psub)
+    . (rbenv init -|psub)
 else
     # bundler install path
-    set -gx BUNDLE_PATH $HOME/.gem/ruby/2.3.0
-    add_paths $HOME/.gem/ruby/2.3.0/bin
+    set -gx BUNDLE_PATH $HOME/.gem/ruby/2.4.0
+    add_paths $HOME/.gem/ruby/2.4.0/bin
 end
 
 # update completion
@@ -147,7 +147,7 @@ set -g AUTOJUMP_ERROR_PATH /dev/null  # fix bug
 set -g AUTOJUMP_DATA_DIR /tmp
 for i in /usr/share/autojump/autojump.fish \
          /etc/profile.d/autojump.fish
-    [ -f "$i" ]; and . "$i"; and break
+         [ -f "$i" ] ; and . "$i"; and break
 end
 
 # simple http server
@@ -189,7 +189,7 @@ ialias timesync "sudo ntpdate -u cn.pool.ntp.org; sudo hwclock -w"
 ialias ppi "sudo pacman -S"
 ialias ppr "sudo pacman -Rsc"
 ialias pps "sudo pacman -Ss"
-ialias pai "pacaur -S"
+ialias pai "pacaur -S --noedit --noconfirm"
 ialias par "pacaur -Rsc"
 ialias pas "pacaur -Ss"
 ialias pau "pacaur -Syu"
@@ -201,7 +201,6 @@ ialias xyw "sudo ~/Softs/rj/rjsupplicant.sh"
 ialias px "proxychains4"
 ialias spx "sudo proxychains4"
 ialias dstat "command dstat -cdlmnpsy"
-ialias down 'axel -n50 -a -v'
 ialias iftop "sudo iftop"
 ialias wifispot "sudo create_ap wlp8s0 wlp8s0"
 ialias wirespot "sudo create_ap wlp8s0 enp9s0"
@@ -210,9 +209,9 @@ ialias wirespot "sudo create_ap wlp8s0 enp9s0"
 ialias v "vim"
 ialias sv "env SUDO_EDITOR=vim sudoedit"
 ialias e "emacsclient -s cli -nw -c"
+ialias em "emacs --no-desktop -nw"
 ialias se "env SUDO_EDITOR=\"emacsclient -s cli -nw -c\" sudoedit"
 ialias ec "emacsclient -nc"
-ialias emacs "env LC_CTYPE=zh_CN.UTF-8 emacs"
 
 # docker
 ialias d "sudo docker"
@@ -265,8 +264,13 @@ ialias rel ". ~/.config/fish/config.fish"
 # extended functions
 ########################
 function t -d "youdao dictionary"
-    wget -qO- "http://fanyi.youdao.com/openapi.do?keyfrom=sudotry&key=1865874386&type=data&doctype=json&version=1.1&q=$argv[1]" |\
-    grep --color=auto -oP '(?<="explains":\[")[^"]*'
+    if has fanyi
+        fanyi "$argv[1]"
+    else
+        wget -qO- \
+        "http://fanyi.youdao.com/openapi.do?keyfrom=sudotry&key=1865874386&type=data&doctype=json&version=1.1&q=$argv[1]" |\
+        grep --color=auto -oP '(?<="explains":\[")[^"]*'
+    end
 end
 
 # history
@@ -323,6 +327,18 @@ function cbo -d "paste content from system clipboard."
         xsel -bo
     else if has xclip
         xclip -selection clipboard -o
+    end
+end
+
+
+# downloader
+if has aria2c
+    function down -d "Download resources with aria2."
+        aria2c \
+        --file-allocation=none \
+        --header="User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36\
+        (KHTML, like Gecko) Chrome/51.0.2704.63 Safari/537.36" \
+        -x16 $argv
     end
 end
 
@@ -439,5 +455,18 @@ function drumf
     sudo docker run --rm -it -v (realpath ./):/host $argv env TERM=xterm-256color fish
 end
 
+function maybe-startx
+    if has startx
+        read -n1 -p "set_color green; echo -n 'Run startx? [y/n] '; set_color normal" ok
+        if [ "$ok" = y ]
+            exec startx -- -keeptty
+        end
+    end
+end
+
 colorize-man-less
 setup-ssh-agent
+
+if status --is-login; and [ -z "$DISPLAY" -a "$XDG_VTNR" = 1 ]
+    maybe-startx
+end
