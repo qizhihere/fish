@@ -3,7 +3,7 @@
 ########################
 function has -d "check if a command is existed in system."
     for i in $argv
-        type -a $argv[1] >/dev/null 2>&1; or return 1
+        type -a "$i" >/dev/null 2>&1; or return 1
     end
     return 0
 end
@@ -213,22 +213,6 @@ ialias em "emacs --no-desktop -nw"
 ialias se "env SUDO_EDITOR=\"emacsclient -s cli -nw -c\" sudoedit"
 ialias ec "emacsclient -nc"
 
-# docker
-ialias d "sudo docker"
-ialias pd "sudo proxychains docker"
-ialias dco "sudo docker-compose"
-ialias docker-pid "d inspect --format '{{.State.Pid}}'"
-ialias docker-ip "d inspect --format '{{ .NetworkSettings.IPAddress }}'"
-ialias dps "d ps -a"
-ialias dim "d images"
-ialias drm "d rm"
-ialias drmi "d rmi"
-ialias drun "d run"
-ialias docker-tree "drun --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz images -t"
-ialias dci "d commit"
-ialias dcc "dps | grep -iE 'exited|dead '| awk '{print \$1}' | xargs sudo docker rm -v"
-ialias dcci "dim | grep -i '<none>' | awk '{print \$3}' | xargs sudo docker rmi"
-
 # git
 ialias gin "git init"
 ialias gdf "git diff"
@@ -435,16 +419,43 @@ end
 
 
 # docker
+ialias d "sudo docker"
+ialias pd "sudo proxychains docker"
+ialias dco "sudo docker-compose"
+ialias dps "d ps -a"
+ialias dim "d images"
+ialias drm "d rm"
+ialias drmi "d rmi"
+ialias drun "d run"
+ialias docker-tree "drun --rm -v /var/run/docker.sock:/var/run/docker.sock nate/dockviz images -t"
+ialias docker-pid "d inspect --format '{{.State.Pid}}'"
+ialias docker-ip "d inspect --format '{{.NetworkSettings.IPAddress}}'"
+
+function docker-clean
+    for x in (sudo docker ps -aq -f "status=dead" -f "status=exited")
+        sudo docker rm -v $x
+    end
+end
+
+function docker-cleani
+    for x in (sudo docker images | grep -i '<none>' | awk '{print $3}')
+        sudo docker rmi $x
+    end
+end
+
+ialias den docker-enter
 function docker-enter
-    sudo nsenter --target (docker-pid $argv[1]) --mount --uts --ipc --net --pid $argv[2..-1]
+    sudo docker exec -it "$argv" sh
 end
 
-function den
-    sudo docker exec -it $argv[1] sh
+ialias denv docker-env
+function docker-env
+    sudo docker inspect --format '{{range $x := .Config.Env}}{{println $x}}{{end}}' $argv | sed '/^$/d'
 end
 
-function denf
-    sudo docker exec -it $argv[1] env TERM=xterm fish
+ialias dpo docker-ports
+function docker-ports
+    sudo docker inspect --format '{{json .NetworkSettings.Ports}}' $argv | python -mjson.tool
 end
 
 function drum
