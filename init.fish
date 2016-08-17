@@ -9,7 +9,7 @@ function has -d "check if a command is existed in system."
 end
 
 function in-arr -d "test if an element is in an array."
-    echo $argv[2..-1] | grep -q "\(^\| \)345\( \|\$\)" 2>/dev/null; or return 1
+    echo "$argv[2..-1]" | grep -q "\(^\| \)$argv[1]\( \|\$\)" 2>/dev/null; or return 1
 end
 
 function export -d "bash export porting."
