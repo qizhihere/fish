@@ -8,6 +8,11 @@ function has -d "check if a command is existed in system."
     return 0
 end
 
+function has_proc -d "check if process with specific command exists."
+    set -l res (pgrep -f "^$argv")
+    [ "$res" ]; or return 1
+end
+
 function in-arr -d "test if an element is in an array."
     echo "$argv[2..-1]" | grep -q "\(^\| \)$argv[1]\( \|\$\)" 2>/dev/null; or return 1
 end
@@ -74,9 +79,17 @@ end
 # fish basic settings
 ########################
 #term 256 color support
-set -gx INIT_TERM "$TERM"
-set -gx TERM "screen-256color"
-set -gx EDITOR "vim"
+export INIT_TERM="$TERM"
+export TERM="screen-256color"
+
+export EMACSCLISOCK=/tmp/emacs/cli.sock # WARNING: The sock path must contains no spaces!
+export EMACSCLIENT="emacsclient -s $EMACSCLISOCK -nw -c"
+if has emacsclient; and has_proc "emacs +.*--daemon=$EMACSCLISOCK"
+    export EDITOR="$EMACSCLIENT"
+else if has vim
+    export EDITOR="vim"
+end
+export VISUAL="$EDITOR"
 
 # disable startup greeting
 set fish_greeting ""
@@ -91,10 +104,7 @@ if test -n "INSIDE_EMACS"
 end
 
 # java environment
-for i in java-{8,7}-openjdk
-    set -l _dir "/usr/lib/jvm/$i"
-    test -d "$_dir"; and set -gx JAVA_HOME "$_dir"
-end
+export JAVA_HOME=(eval "ls -dr1 /usr/lib/jvm/java-*-openjdk" 2>/dev/null | head -1)
 
 # environment variables
 add_paths $HOME/.rbenv/bin \
@@ -208,10 +218,15 @@ ialias wirespot "sudo create_ap wlp8s0 enp9s0"
 # edit
 ialias v "vim"
 ialias sv "env SUDO_EDITOR=vim sudoedit"
-ialias e "emacsclient -s cli -nw -c"
-ialias em "emacs --no-desktop -nw"
-ialias se "env SUDO_EDITOR=\"emacsclient -s cli -nw -c\" sudoedit"
+ialias e "$EMACSCLIENT"
 ialias ec "emacsclient -nc"
+function se -d "Edit files as root via emacsclient."
+    set -l files
+    for x in $argv
+        set files "$files \"/sudo::$x\""
+    end
+    eval "e $files"
+end
 
 # git
 ialias gin "git init"
