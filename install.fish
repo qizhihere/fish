@@ -12,11 +12,17 @@ function verbose_do
     eval "$argv"
 end
 
-# install oh my fish
-if begin not has omf; and [ -z "$OMF_BOOTSTRAP" ]; end
-    curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | env OMF_BOOTSTRAP=yes fish
+set CUR (realpath (dirname (status -f)))
+set DST "$HOME/.config/omf"
+if [ "$CUR" != "$DST" ]
+    verbose_do "ln -s \"$CUR\" \"$DST\""
 end
 
 # create shortcuts
 verbose_do "ln -sf ~/.config/omf/init.fish ~/.fishrc"
 verbose_do "ln -sf ~/.config/omf/.dircolors ~/.dircolors"
+
+# install oh my fish
+if begin not has omf; and [ -z "$OMF_BOOTSTRAP" ]; end
+    curl -L https://github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | env OMF_BOOTSTRAP=yes fish
+end
