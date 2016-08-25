@@ -12,7 +12,7 @@ function verbose_do
     eval "$argv"
 end
 
-set CUR (realpath (dirname (status -f)))
+set CUR (readlink -f (dirname (status -f)))
 set DST "$HOME/.config/omf"
 if [ "$CUR" != "$DST" ]
     verbose_do "ln -s \"$CUR\" \"$DST\""
