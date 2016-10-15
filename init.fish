@@ -53,23 +53,6 @@ function randpw -d "generate a random password with the specified length(default
     tr -dc _A-Za-z0-9 < /dev/urandom | head -c$len[1];echo
 end
 
-function ff -d "interactively quickly file pick."
-    find . -type f -iwholename "*$argv*" 2>/dev/null | percol | p2abs | read -lz files
-    echo -n $files | cbi
-    echo -n $files
-end
-
-function fd -d "interactively quickly directory pick."
-    find . -type d -iwholename "*$argv*" 2>/dev/null | percol | p2abs | read -lz dirs
-    echo -n $dirs | cbi
-    echo -n $dirs
-end
-
-function gd -d "interactively quickly directory change."
-    find . -type d -iwholename "*$argv*" 2>/dev/null | percol | p2abs | read -l dir
-    [ -d $dir ]; and cd $dir
-end
-
 if not has "realpath"
     ialias realpath "readlink -f"
 end
@@ -146,19 +129,8 @@ end
 # ls colors
 [ -f ~/.dircolors ]; and eval (dircolors -c ~/.dircolors)
 
-# percol
-if begin not has percol; and has sudo pip2; end
-    sudo pip2 install percol -U
-end
-
 # autojump
-ialias j "autojump"
-set -g AUTOJUMP_ERROR_PATH /dev/null  # fix bug
-set -g AUTOJUMP_DATA_DIR /tmp
-for i in /usr/share/autojump/autojump.fish \
-         /etc/profile.d/autojump.fish
-         [ -f "$i" ] ; and . "$i"; and break
-end
+ialias j "fasd"
 
 # simple http server
 ialias server "python2 -mSimpleHTTPServer"
